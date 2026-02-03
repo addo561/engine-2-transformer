@@ -5,9 +5,10 @@ from torch.utils.data import DataLoader,Dataset
 import os
 from bs4 import BeautifulSoup
 import requests
-###Get text data(get_data function),build dataloader funcs and Dataset  class
 
-#set url
+###GET TEXT DATA(GET_DATA FUNCTION),BUILD DATALOADER FUNCS AND DATASET  CLASS
+
+#SET URL
 def get_data(text_file):
     '''returns txt  file  of  raw  text'''
     path = os.path.join('.',text_file)
@@ -19,25 +20,25 @@ def get_data(text_file):
     res = requests.get(url,headers=headers)
     if res.status_code==200: #check if request was  succesfull
         soup =  BeautifulSoup(res.text,'html.parser')
-        # Strip extra whitespace from each paragraph
+        # Strip extra whitespace from each paragraph, remove sometexts
         texts = [t.get_text().strip() for t in  soup.find_all('p')  if t.get_text().strip() ][1:-3]
         #seperate with new line
         texts  = '\n\n'.join(texts)
-        #print(texts)
-        #dump to text_file
+        #dump to TEXT_FILE
         with  open(path,'w')  as f:
             f.writelines(texts)   
     else:
         print('bad request')
     return texts
 
-#get_data('text.txt')
-### tokenization from model dataset  and dataloader
+get_data('text.txt')
+
+### TOKENIZATION FROM MODEL DATASET  AND DATALOADER
 
 class ModelDataset(nn.Module):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         pass
-    
+
 def loader():
     pass    

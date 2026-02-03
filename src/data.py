@@ -9,7 +9,7 @@ import requests
 ###GET TEXT DATA(GET_DATA FUNCTION),BUILD DATALOADER FUNCS AND DATASET  CLASS
 
 #SET URL
-def get_data(text_file):
+def get_data(text_file, save : bool = False):
     '''returns txt  file  of  raw  text'''
     path = os.path.join('.',text_file)
 
@@ -21,22 +21,29 @@ def get_data(text_file):
     if res.status_code==200: #check if request was  succesfull
         soup =  BeautifulSoup(res.text,'html.parser')
         # Strip extra whitespace from each paragraph, remove sometexts
-        texts = [t.get_text().strip() for t in  soup.find_all('p')  if t.get_text().strip() ][1:-3]
+        texts = [t.get_text().strip().replace('\n',' ') for t in  soup.find_all('p')  if t.get_text().strip() ][1:-3]
         #seperate with new line
-        texts  = '\n\n'.join(texts)
+        texts  = ' '.join(texts)
+        words = texts.split()
+        new = ''
+        for w in words:
+            new += w + ' '
+            if '.' in w :
+                new += '\n'
         #dump to TEXT_FILE
-        with  open(path,'w')  as f:
-            f.writelines(texts)   
+        if save:
+            with  open(path,'w')  as f:
+                f.writelines(new)   
     else:
         print('bad request')
-    return texts
+    return new
 
-get_data('text.txt')
+get_data('text.txt',True)
 
 ### TOKENIZATION FROM MODEL DATASET  AND DATALOADER
 
 class ModelDataset(nn.Module):
-    def __init__(self, *args, **kwargs):
+    def __init__(self,txt,tokenizer,max_length,stride):
         super().__init__(*args, **kwargs)
         pass
 

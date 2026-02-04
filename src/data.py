@@ -42,10 +42,66 @@ get_data('text.txt',True)
 
 ### TOKENIZATION FROM MODEL DATASET  AND DATALOADER
 
-class ModelDataset(nn.Module):
+class Tdataset(Dataset):
     def __init__(self,txt,tokenizer,max_length,stride):
-        super().__init__(*args, **kwargs)
-        pass
+        self.X = []
+        self.y = []
 
-def loader():
-    pass    
+        #get  ids of textswith tokenizer
+        token_ids = tokenizer.encode(txt,allowed_special={"<|endoftext|>"})
+        #get inputs and outputs wiht step of 1
+        for i in range(0,len(token_ids) - max_length,stride):
+            inputs = token_ids[i:i+max_length]
+            outs = token_ids[i+1:i+max_length+1]
+            self.X.append(torch.tensor(inputs))
+            self.y.append(torch.tensor(outs))
+    def __len__(self):
+        return len(self.X)
+    def __getitem__(self, index):
+        return self.X[index],self.y[index]
+    
+def loader(txt,max_length,stride,batch_size,
+           shuffle=True,num_workers=0,drop_last = True):
+    #tokenizer defined
+    tokenizer =  tiktoken.get_encoding('gpt2') 
+    #get dataset
+    dataset = Tdataset(txt,tokenizer,max_length,stride)
+    
+    #create dataloader
+    dataloader = DataLoader(
+        dataset,
+        batch_size=batch_size,
+        shuffle=shuffle,
+        num_workers=num_workers,
+        drop_last=drop_last
+    )
+    return dataloader
+
+
+### FUNC FOR INPUT EMBEDDING, COMBINE POSITIONAL AND TOKEN_EMBEDDING
+
+def get_input_embedding(txt,
+                        max_length,
+                        stride,
+                        batch_size,
+                        num_workers
+                        ):
+    #POSITIONAL AND TOKEN EMBEDDING
+    vocab_size = 50257
+    out_dim = 256
+
+    token_embed_layer = nn.Embedding(vocab_size,out_dim)#set shapes 
+    positional_embed_layer = nn.Embedding(max_length,out_dim)#
+
+    dataloader =loader(txt,
+                       max_length=max_length,
+                       stride=stride,
+                       batch_size=batch_size,
+                       num_workers=num_workers,  
+                       )
+    for X,y in dataloader:
+        token_embeddings = token_embed_layer(X)
+        positional_embeddings = positional_embed_layer(torch.arange(max_length))
+        input_embeddings = token_embeddings + positional_embeddings
+        break
+    return input_embeddings

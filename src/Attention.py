@@ -90,7 +90,7 @@ class MultiheadSelfAttention(nn.Module):
     attn_scores  = queries @ keys.transpose(2,3)
 
     # if number of tokens in batch is less than  context_size
-    masked = attn_scores.masked_fill_(self.mask.bool()[:num_tokens][:num_tokens],-torch.inf)
+    masked = attn_scores.masked_fill_(self.mask.bool()[:num_tokens,:num_tokens],-torch.inf)
     attn_weights = torch.softmax(masked/keys.shape[-1]**0.5,
                                  dim=-1)
     drop_weights  = self.dropout(attn_weights)

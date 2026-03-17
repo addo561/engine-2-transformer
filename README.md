@@ -4,7 +4,7 @@ Transformer decoder built from scratch following Sebastien Raschka's
 *Build a Large Language Model From Scratch*. Covers the full architecture 
 from tokenization to autoregressive generation.
 
-## Architecture()
+## Architecture(Right one-> decoder)
 
 <!-- Add architecture diagram here -->
 <img width="1320" height="1860" alt="attention_research_1" src="https://github.com/user-attachments/assets/ef0ff141-2851-4012-a5f6-304fc9e90820" />
